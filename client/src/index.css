@@ -22,7 +22,11 @@
 }
 .username__input {
   padding: 10px;
-  width: 50%;
+  width: 30%;
+}
+.password__input {
+  padding: 10px;
+  width: 30%;
 }
 .home__cta {
   width: 200px;
@@ -152,4 +156,11 @@ font-size: 15px;
   bottom: 50px;
   font-size: 13px;
   font-style: italic;
+}
+
+.message__timestamp {
+  font-size: 10px;
+  margin-bottom: -2%;
+  color: gray;
+  text-align: right;
 }

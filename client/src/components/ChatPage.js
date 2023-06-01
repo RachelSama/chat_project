@@ -1,32 +1,39 @@
-import React, { useEffect, useState, useRef} from 'react'
+import React, { useEffect, useState } from 'react'
 import ChatBar from './ChatBar'
 import ChatBody from './ChatBody'
 import ChatFooter from './ChatFooter'
 
-const ChatPage = ({socket}) => { 
-  const [messages, setMessages] = useState([])
-  const [typingStatus, setTypingStatus] = useState("")
-  const lastMessageRef = useRef(null);
-
-  useEffect(()=> {
-    socket.on("messageResponse", data => setMessages([...messages, data]))
-  }, [socket, messages])
-
-  useEffect(()=> {
-    socket.on("typingResponse", data => setTypingStatus(data))
-  }, [socket])
+const ChatPage = ({ socket }) => {
+  const [roomName, setRoomName] = useState("");
 
   useEffect(() => {
-    // 👇️ scroll to bottom every time messages change
-    lastMessageRef.current?.scrollIntoView({behavior: 'smooth'});
-  }, [messages]);
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      // Realizar una solicitud a la base de datos para obtener el usuario y la contraseña asociados al token
+      socket.emit('getUserData', storedToken, (data) => {
+        if (data && data.username && data.password) {
+          const dataUser = {
+            username: data.username,
+            password: data.password
+          }
+          socket.emit("login", dataUser)
+        }
+      });
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    socket.on("roomToGetMessages", (roomName) => {
+      setRoomName(roomName);
+    });
+  }, [socket]);
 
   return (
     <div className="chat">
-      <ChatBar socket={socket}/>
+      <ChatBar socket={socket} />
       <div className='chat__main'>
-        <ChatBody messages={messages} typingStatus={typingStatus} lastMessageRef={lastMessageRef}/>
-        <ChatFooter socket={socket}/>
+        <ChatBody roomName={roomName} socket={socket} />
+        <ChatFooter socket={socket} roomName={roomName} />
       </div>
     </div>
   )
